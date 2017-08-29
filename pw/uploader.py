@@ -100,7 +100,7 @@ class Upload(object):
     def _handle_nginx_res(self, res, data):
         if res.status_code == ACK_STATUS:
             loaded = self._parse_range_header(res)
-            print('Server acknowledeged: bytes {}-{}/{}'.format(
+            print('Server acknowledged: bytes {}-{}/{}'.format(
                 data.start, loaded, self.file.size))
             self.file.load(loaded+1)
             return True
@@ -159,7 +159,6 @@ class Upload(object):
 
             if ok:
                 self._measure_read(data, start_time)
-            time.sleep(2)
 
         self.file.pointer.close()
         if self.res:
