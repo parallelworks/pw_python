@@ -106,9 +106,8 @@ class Upload(object):
             return True
 
         elif res.status_code == EOF_STATUS:
-            print('Server acknowledeged: EOF')
+            print('Server acknowledged: EOF')
             self.file.load(data.end)
-            # self.res = res.content.decode('utf-8')
             self.res = json.loads(res.content)
             return True
 
