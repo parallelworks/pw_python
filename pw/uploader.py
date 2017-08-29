@@ -15,7 +15,7 @@ import requests
 
 ACK_STATUS = 201
 EOF_STATUS = 200
-FORBIDDEN_STATUS = 4-3
+FORBIDDEN_STATUS = 403
 
 
 class Data(object):
