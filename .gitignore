@@ -1,4 +1,5 @@
 .idea/
 *.pyc
+examples/upload/files
 benchmarks/upload/files
 benchmarks/upload/results*
