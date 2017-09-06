@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
 import os
+import sys
+sys.path.insert(1, os.path.join(sys.path[0], '../..'))
 
 from pw.uploader import Upload
 from pw.utils import BIN_SIZES
-
 
 def get_parser():
     parser = ArgumentParser(description='run upload benchmarks')
@@ -29,7 +30,7 @@ def main():
     # Files to benchmark
 
     filedir = 'files/'
-    filenames = ['1K.txt', '1M.txt', '100M.txt', '2G.txt', '4G.txt', '10G.txt']
+    filenames = ['1K.bin', '1M.bin', '100M.bin', '2G.bin', '4G.bin', '10G.bin']
     files = [filedir + name for name in filenames]
 
     # Args
@@ -42,7 +43,7 @@ def main():
 
     # Write results for plotting
 
-    results_file = 'results/results.csv'
+    results_file = 'results.csv'
 
     with open(results_file, 'a+') as fp:
         fp.write('filename, filesize, window, total_transmit_time, throughput\n')
@@ -51,7 +52,8 @@ def main():
         for file in files:
             for window in read_sizes:
                 upload = Upload(file, wid, key, window, max_retries, retry_timeout)
-                upload.submit(endpoint)
+                res = upload.submit(endpoint)
+                print(res)
 
                 total_time = sum([pt[5] for pt in upload.read_times])
                 file_size = os.path.getsize(file)

@@ -4,7 +4,7 @@
     Uploads a file to Parallel Works using a chunked and resumable method.
     http://www.grid.net.ru/nginx/resumable_uploads.en.html
 
-    Python 2.7.10
+    Python 3.x
 
 """
 import json
@@ -59,10 +59,11 @@ class File(object):
 
 class Upload(object):
     """Upload is an object that handles uploading a file to a remote nginx server"""
-    def __init__(self, filename, workspace_id, key, max_read_size, max_retries, retry_timeout):
+    def __init__(self, filename, workspace_id, key, datatype, max_read_size, max_retries, retry_timeout):
         self.file = File(filename, max_read_size)
         self.workspace_id = workspace_id
         self.key = key
+        self.datatype = datatype
         self.max_retries = max_retries
         self.retry_timeout = retry_timeout
         self.retry_count = 0
@@ -108,24 +109,24 @@ class Upload(object):
         elif res.status_code == EOF_STATUS:
             print('Server acknowledged: EOF')
             self.file.load(data.end)
-            self.res = json.loads(res.content)
+            self.res = json.loads(res.content.decode('utf-8'))
             return True
 
         elif res.status_code == FORBIDDEN_STATUS:
             err = 'Error: API is invalid for this workspace'
             raise Exception(err)
 
-        elif self.retry_count < self.max_retries:
-            print('Warning: need to retry sending current chunk ({})'.format(
-                    res.status_code))
-            print(res.content)
-            self.retry_count += 1
-            time.sleep(self.retry_timeout)
-            return False
-
         else:
-            err = 'Submit Failed: exceeded retry count'
-            raise Exception(err)
+            print('Error: no ack for bytes {}-{}/{} (code {})'.format(
+                data.start, data.end, self.file.size, res.status_code))
+
+            if self.retry_count < self.max_retries:
+                self.retry_count += 1
+                time.sleep(self.retry_timeout)
+                return False
+            else:
+                err = 'Submit Failed: exceeded retry count'
+                raise Exception(err)
 
     def submit(self, url):
         session_id = self._generate_session_id()
@@ -150,7 +151,8 @@ class Upload(object):
             }
             params = {
                 'workspaceId': self.workspace_id,
-                'key': self.key
+                'key': self.key,
+                'datatype': self.datatype
             }
 
             res = requests.post(url, data=data.content, params=params, headers=headers)

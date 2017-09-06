@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import sys
+sys.path.insert(1, os.path.join(sys.path[0], '../..'))
+
 import numpy as np
 import matplotlib
 
@@ -64,7 +67,7 @@ def make_plot(data):
 
 def main():
     data = []
-    data_file = 'results/results.csv'
+    data_file = 'results.csv'
 
     with open(data_file, 'r') as fp:
         lines = fp.readlines()[1:]
